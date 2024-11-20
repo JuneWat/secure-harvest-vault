@@ -219,6 +219,68 @@ npm run preview
 
 BSD-3-Clause-Clear
 
+## Git Push to GitHub
+
+This project includes automated scripts to easily push your changes to GitHub after each modification.
+
+### Quick Push (Recommended)
+
+#### Windows (PowerShell)
+```powershell
+# Push with auto-generated commit message (includes timestamp)
+.\push-to-github.ps1
+
+# Push with custom commit message
+.\push-to-github.ps1 "Your commit message here"
+
+# Force push (use with caution)
+.\push-to-github.ps1 -Force "Force update message"
+```
+
+#### Linux/Mac (Bash)
+```bash
+# Push with auto-generated commit message (includes timestamp)
+./push-to-github.sh
+
+# Push with custom commit message
+./push-to-github.sh "Your commit message here"
+
+# Force push (use with caution)
+./push-to-github.sh --force "Force update message"
+```
+
+### Manual Push (Alternative)
+
+If you prefer manual control:
+
+```bash
+# Check status
+git status
+
+# Add all changes
+git add -A
+
+# Commit with message
+git commit -m "Your commit message"
+
+# Push to GitHub
+git push origin master:main
+```
+
+### What the Scripts Do
+
+1. **Check for Changes**: Automatically detects if there are any modifications
+2. **Add Files**: Stages all changed files for commit
+3. **Commit**: Creates a commit with your message (or auto-generates one)
+4. **Push**: Uploads changes to GitHub main branch
+5. **Verify**: Shows the latest commit for confirmation
+
+### Troubleshooting
+
+- **No changes detected**: The script will inform you if there's nothing to commit
+- **Push failed**: Check your internet connection and GitHub permissions
+- **Permission denied**: Ensure you have push access to the repository
+
 ## Support
 
 For issues and questions:
