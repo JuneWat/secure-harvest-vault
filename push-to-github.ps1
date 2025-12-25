@@ -92,3 +92,4 @@ Write-Host "🌐 Repository: https://github.com/JuneWat/secure-harvest-vault" -F
 Write-Host ""
 Write-Host "📋 Latest commit:" -ForegroundColor Cyan
 git log --oneline -1
+

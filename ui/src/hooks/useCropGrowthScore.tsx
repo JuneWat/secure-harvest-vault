@@ -49,11 +49,8 @@ export function useCropGrowthScore(
     ethers.JsonRpcProvider | undefined
   >(undefined);
 
-  // Get EIP1193 provider
+  // Get EIP1193 provider from wallet
   const eip1193Provider = useCallback(() => {
-    if (chainId === 31337) {
-      return "http://localhost:8545";
-    }
     if (walletClient?.transport) {
       const transport = walletClient.transport as any;
       if (transport.value && typeof transport.value.request === "function") {
@@ -67,7 +64,7 @@ export function useCropGrowthScore(
       return (window as any).ethereum;
     }
     return undefined;
-  }, [chainId, walletClient]);
+  }, [walletClient]);
 
   // Initialize FHEVM
   const { instance: fhevmInstance, status: fhevmStatus } = useFhevm({
@@ -87,30 +84,12 @@ export function useCropGrowthScore(
 
     const setupEthers = async () => {
       try {
-        // For localhost, use direct RPC connection to Hardhat node
-        // This avoids going through MetaMask which may not support FHE operations
-        if (chainId === 31337) {
-          const provider = new ethers.JsonRpcProvider("http://localhost:8545");
-          setEthersProvider(provider);
-          
-          // Get the connected account address
-          const accounts = await walletClient.getAddresses();
-          if (accounts && accounts.length > 0) {
-            // Use JsonRpcSigner with the connected account
-            // This allows signing transactions directly with the Hardhat node
-            const signer = await provider.getSigner(accounts[0]);
-            setEthersSigner(signer);
-            console.log("[useCropGrowthScore] Using direct localhost connection with account:", accounts[0]);
-          } else {
-            console.warn("[useCropGrowthScore] No accounts found in wallet client");
-          }
-        } else {
-          // For other networks, use wallet client provider
-          const provider = new ethers.BrowserProvider(walletClient as any);
-          const signer = await provider.getSigner();
-          setEthersProvider(provider as any);
-          setEthersSigner(signer);
-        }
+        // Always use wallet client provider to ensure wallet interaction
+        const provider = new ethers.BrowserProvider(walletClient as any);
+        const signer = await provider.getSigner();
+        setEthersProvider(provider as any);
+        setEthersSigner(signer);
+        console.log("[useCropGrowthScore] Using wallet connection for account:", await signer.getAddress());
       } catch (error) {
         console.error("[useCropGrowthScore] Error setting up ethers:", error);
         setEthersSigner(undefined);
@@ -158,11 +137,10 @@ export function useCropGrowthScore(
         setMessage("Encrypting score...");
 
         // Encrypt score using FHEVM
-        // Note: The second parameter should be the address that will decrypt (farmerAddress)
-        // but the encryption is done by the submitter (address)
+        // The second parameter MUST be the current user's address (the one who signs the proof)
         const encryptedInput = fhevmInstance.createEncryptedInput(
           contractAddress as `0x${string}`,
-          farmerAddress as `0x${string}`  // Farmer address for decryption permission
+          address as `0x${string}`
         );
         encryptedInput.add32(score);
         const encrypted = await encryptedInput.encrypt();

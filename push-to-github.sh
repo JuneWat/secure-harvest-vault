@@ -90,3 +90,4 @@ echo -e "${GREEN}🌐 Repository: https://github.com/JuneWat/secure-harvest-vaul
 echo ""
 echo -e "${CYAN}📋 Latest commit:${NC}"
 git log --oneline -1
+
